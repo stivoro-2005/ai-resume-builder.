@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Resume Builder Pro</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#f3f4f6;
+margin:0;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+
+.container{
+background:white;
+padding:40px;
+width:720px;
+border-radius:10px;
+box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+h1{
+text-align:center;
+color:#111;
+}
+
+input,textarea,select{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:5px;
+border:1px solid #ccc;
+font-size:14px;
+}
+
+button{
+background:#111827;
+color:white;
+border:none;
+padding:12px;
+margin-top:6px;
+border-radius:5px;
+cursor:pointer;
+width:100%;
+}
+
+button:hover{
+background:#374151;
+}
+
+.resume{
+display:none;
+margin-top:20px;
+padding:20px;
+border:1px solid #ddd;
+}
+
+.resume-header{
+display:flex;
+gap:20px;
+align-items:center;
+}
+
+.resume-header img{
+width:90px;
+height:90px;
+border-radius:50%;
+object-fit:cover;
+}
+
+/* plantillas */
+
+.template-corporate{
+border-left:6px solid #333;
+padding-left:12px;
+}
+
+.template-executive{
+font-family:Georgia,serif;
+background:#fafafa;
+}
+
+.template-creative{
+border-top:4px solid #444;
+}
+
+.template-elegant{
+font-family:"Times New Roman";
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>AI Resume Builder</h1>
+
+<input id="name" placeholder="Full Name">
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="Phone">
+
+<label>Profile Photo</label>
+<input type="file" id="photo">
+
+<textarea id="summary" placeholder="Professional Summary"></textarea>
+
+<button onclick="generateAI()">Generate with AI</button>
+
+<textarea id="experience" placeholder="Work Experience"></textarea>
+<textarea id="skills" placeholder="Skills"></textarea>
+
+<label>Template</label>
+<select id="template">
+<option value="modern">Modern</option>
+<option value="classic">Classic</option>
+<option value="minimal">Minimal</option>
+<option value="corporate">Corporate</option>
+<option value="executive">Executive</option>
+<option value="creative">Creative</option>
+<option value="elegant">Elegant</option>
+</select>
+
+<label>
+<input type="checkbox" id="atsMode">
+ATS Friendly Resume
+</label>
+
+<button onclick="generate()">Generate Resume</button>
+<button onclick="downloadPDF()">Download PDF</button>
+
+<button onclick="saveResume()">Save Resume</button>
+<button onclick="loadResume()">Load Saved Resume</button>
+
+<button onclick="shareResume()">Share Resume Link</button>
+
+<button onclick="premium()">Unlock Premium</button>
+
+<button onclick="login()">Login with Google</button>
+<button onclick="saveCloud()">Save Resume to Cloud</button>
+
+<div class="resume" id="resume">
+
+<div class="resume-header">
+
+<img id="rphoto">
+
+<div>
+
+<h2 id="rname"></h2>
+
+<p id="remail"></p>
+
+<p id="rphone"></p>
+
+</div>
+
+</div>
+
+<h3>Summary</h3>
+
+<p id="rsummary"></p>
+
+<h3>Experience</h3>
+
+<p id="rexperience"></p>
+
+<h3>Skills</h3>
+
+<p id="rskills"></p>
+
+</div>
+
+</div>
+
+<script>
+
+function generate(){
+
+let resume=document.getElementById("resume")
+
+let template=document.getElementById("template").value
+
+resume.className="resume template-"+template
+
+resume.style.display="block"
+
+document.getElementById("rname").innerText=document.getElementById("name").value
+
+document.getElementById("remail").innerText=document.getElementById("email").value
+
+document.getElementById("rphone").innerText=document.getElementById("phone").value
+
+document.getElementById("rsummary").innerText=document.getElementById("summary").value
+
+document.getElementById("rexperience").innerText=document.getElementById("experience").value
+
+document.getElementById("rskills").innerText=document.getElementById("skills").value
+
+let file=document.getElementById("photo").files[0]
+
+if(file){
+
+let reader=new FileReader()
+
+reader.onload=function(e){
+
+document.getElementById("rphoto").src=e.target.result
+
+}
+
+reader.readAsDataURL(file)
+
+}
+
+if(document.getElementById("atsMode").checked){
+
+resume.style.fontFamily="Arial"
+
+resume.style.background="white"
+
+resume.style.color="black"
+
+}
+
+}
+
+function generateAI(){
+
+let text="Professional with strong skills in teamwork, communication and problem solving, focused on delivering high quality results."
+
+document.getElementById("summary").value=text
+
+}
+
+function downloadPDF(){
+
+let element=document.getElementById("resume")
+
+html2pdf().from(element).save("resume.pdf")
+
+}
+
+function saveResume(){
+
+let data={
+
+name:name.value,
+
+email:email.value,
+
+phone:phone.value,
+
+summary:summary.value,
+
+experience:experience.value,
+
+skills:skills.value
+
+}
+
+localStorage.setItem("resume",JSON.stringify(data))
+
+alert("Resume saved!")
+
+}
+
+function loadResume(){
+
+let data=JSON.parse(localStorage.getItem("resume"))
+
+if(!data)return
+
+name.value=data.name
+
+email.value=data.email
+
+phone.value=data.phone
+
+summary.value=data.summary
+
+experience.value=data.experience
+
+skills.value=data.skills
+
+}
+
+function shareResume(){
+
+let resume=document.getElementById("resume").innerHTML
+
+let encoded=btoa(resume)
+
+let link=window.location.href.split("?")[0]+"?resume="+encoded
+
+navigator.clipboard.writeText(link)
+
+alert("Share link copied!")
+
+}
+
+let params=new URLSearchParams(window.location.search)
+
+if(params.get("resume")){
+
+let data=atob(params.get("resume"))
+
+let resume=document.getElementById("resume")
+
+resume.innerHTML=data
+
+resume.style.display="block"
+
+}
+
+function premium(){
+
+window.open("https://buy.stripe.com/test")
+
+}
+
+</script>
+
+<!-- FIREBASE READY -->
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"
+import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+
+const firebaseConfig = {
+
+apiKey:"PASTE_API_KEY",
+
+authDomain:"PROJECT.firebaseapp.com",
+
+projectId:"PROJECT_ID",
+
+storageBucket:"PROJECT.appspot.com",
+
+messagingSenderId:"XXXX",
+
+appId:"XXXX"
+
+}
+
+const app=initializeApp(firebaseConfig)
+
+const auth=getAuth(app)
+
+const db=getFirestore(app)
+
+const provider=new GoogleAuthProvider()
+
+window.login=async function(){
+
+const result=await signInWithPopup(auth,provider)
+
+alert("Logged as "+result.user.email)
+
+}
+
+window.saveCloud=async function(){
+
+const user=auth.currentUser
+
+if(!user){
+
+alert("Login first")
+
+return
+
+}
+
+await setDoc(doc(db,"resumes",user.uid),{
+
+name:name.value,
+
+email:email.value,
+
+summary:summary.value
+
+})
+
+alert("Saved in cloud")
+
+}
+
+</script>
+
+</body>
+</html>
